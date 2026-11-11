@@ -1,65 +1,53 @@
-# MultiPDF Chat App
+# Multi-PDF RAG Chatbot (Ollama)
 
-> You can find the tutorial for this project on [YouTube](https://youtu.be/dXxQ0LR-3Hg).
+A simple personal learning project for asking questions across multiple PDF files. It uses **Python, Streamlit, LangChain, FAISS, and Ollama**. Chat generation and embeddings run through an Ollama server rather than an OpenAI API key.
 
-## Introduction
-------------
-The MultiPDF Chat App is a Python application that allows you to chat with multiple PDF documents. You can ask questions about the PDFs using natural language, and the application will provide relevant responses based on the content of the documents. This app utilizes a language model to generate accurate answers to your queries. Please note that the app will only respond to questions related to the loaded PDFs.
+## Features
 
-## How It Works
-------------
+- Upload and process multiple text-based PDFs.
+- Split extracted PDF text into overlapping chunks.
+- Create local embeddings with `nomic-embed-text` and index them with FAISS.
+- Retrieve relevant text and generate answers using `llama3.2:3b`.
+- Follow up within the same chat session and inspect retrieved document/page references.
 
-![MultiPDF Chat App Diagram](./docs/PDF-LangChain.jpg)
+## How it works
 
-The application follows these steps to provide responses to your questions:
+PDFs → text extraction → chunking → Ollama embeddings → FAISS index → relevant chunks → Ollama chat model → answer.
 
-1. PDF Loading: The app reads multiple PDF documents and extracts their text content.
+## Run locally
 
-2. Text Chunking: The extracted text is divided into smaller chunks that can be processed effectively.
+1. Install [Python](https://www.python.org/downloads/) (3.11 recommended) and [Ollama](https://ollama.com/download).
+2. Start Ollama (the desktop application or `ollama serve`).
+3. Download the two models:
 
-3. Language Model: The application utilizes a language model to generate vector representations (embeddings) of the text chunks.
-
-4. Similarity Matching: When you ask a question, the app compares it with the text chunks and identifies the most semantically similar ones.
-
-5. Response Generation: The selected chunks are passed to the language model, which generates a response based on the relevant content of the PDFs.
-
-## Dependencies and Installation
-----------------------------
-To install the MultiPDF Chat App, please follow these steps:
-
-1. Clone the repository to your local machine.
-
-2. Install the required dependencies by running the following command:
-   ```
-   pip install -r requirements.txt
+   ```bash
+   ollama pull llama3.2:3b
+   ollama pull nomic-embed-text
    ```
 
-3. Obtain an API key from OpenAI and add it to the `.env` file in the project directory.
-```commandline
-OPENAI_API_KEY=your_secrit_api_key
-```
+4. Install dependencies:
 
-## Usage
------
-To use the MultiPDF Chat App, follow these steps:
-
-1. Ensure that you have installed the required dependencies and added the OpenAI API key to the `.env` file.
-
-2. Run the `main.py` file using the Streamlit CLI. Execute the following command:
+   ```bash
+   python -m pip install -r requirements.txt
    ```
+
+5. Start the application:
+
+   ```bash
    streamlit run app.py
    ```
 
-3. The application will launch in your default web browser, displaying the user interface.
+6. Upload PDFs, select **Process PDFs**, and ask a question.
 
-4. Load multiple PDF documents into the app by following the provided instructions.
+By default, the app connects to `http://localhost:11434`. You can configure `OLLAMA_BASE_URL`, `OLLAMA_CHAT_MODEL`, and `OLLAMA_EMBED_MODEL` in your environment, or edit the Ollama server URL in the sidebar. Do not expose an unauthenticated Ollama server to the public internet.
 
-5. Ask questions in natural language about the loaded PDFs using the chat interface.
+## Live demo / hosting
 
-## Contributing
-------------
-This repository is intended for educational purposes and does not accept further contributions. It serves as supporting material for a YouTube tutorial that demonstrates how to build this project. Feel free to utilize and enhance the app based on your own requirements.
+**This repository is ready for a local demo. It is not automatically a public live demo.** Streamlit Community Cloud hosts the Streamlit UI but does not provide a local Ollama model server. For an online deployment, you need a separate always-on Ollama host reachable by the Streamlit app, or a supported remote model API. Avoid pointing a cloud app at `localhost:11434` unless Ollama is running on that exact same host.
 
-## License
--------
-The MultiPDF Chat App is released under the [MIT License](https://opensource.org/licenses/MIT).
+## Notes
+
+- Scanned PDFs without selectable text require OCR (not included).
+- Responses may be incomplete or incorrect; verify important facts against the original PDF.
+- Documents, text chunks, and the FAISS index are kept in app session memory; this version does not persist uploads to a database.
+- This is an adaptation of [Alejandro AO's ask-multiple-pdfs project](https://github.com/alejandro-ao/ask-multiple-pdfs), built as a learning exercise. The original project is MIT licensed; see its repository for license information and the [original tutorial](https://youtu.be/dXxQ0LR-3Hg).
